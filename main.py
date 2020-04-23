@@ -54,9 +54,23 @@ bulletY_change = 20  # speed of bullet
 bullet_state = "ready"
 
 # score
-
 score_value = 0
+font = pygame.font.Font('freesansbold.ttf', 32)
 
+textX = 10  # screen placement
+textY = 10  # screen placement
+
+# Game Over Text
+over_font = pygame.font.Font('freesansbold.ttf', 64)
+
+
+def show_score(x, y):
+    score = font.render("Score :" + str(score_value), True, (0, 255, 0)) # text, value variable, display yes, color
+    screen.blit(score, (x, y))
+
+def game_over_text():
+    over_text = over_font.render("GAME OVER", True, (0, 255, 0))  # text, value variable, display yes, color
+    screen.blit(over_text, (200, 250))
 
 def player(x, y):  # player function
     screen.blit(playerImg, (x, y))  # this function will draw the icon to the screen
@@ -101,6 +115,8 @@ while running:
                 playerX_change = 4  # how fast the spaceship will move from left/right
             if event.key == pygame.K_SPACE:
                 if bullet_state is "ready":  # checks if bullet is on screen or not
+                    # bullet_sound = mixer.sound('')  # add .wav file
+                    # bullet_sound.play()
                     bulletX = playerX  # if not it gets x coordinate of spaceship/ bulletX
                     fire_bullet(playerX, bulletY)  # calls fire bullet function
 
@@ -117,20 +133,29 @@ while running:
         playerX = 736
 
     for i in range(num_of_enemies):
+        # Game Over
+        if enemyY[i] > 440:
+            for j in range(num_of_enemies):
+                enemyY[j] = 2000  # this will make the enemy's disappear off screen
+            game_over_text()
+            break
+
         enemyX[i] += enemyX_change[i]  # key movement functionality
         #  this part will create boundaries for the game
         if enemyX[i] <= 0:  # when the ship reaches boundaries it deletes it and reprints it at 0
-            enemyX_change[i] = 3
+            enemyX_change[i] = 5
             enemyY[i] += enemyY_change[i]  # this will move it down when it hits border
         elif enemyX[i] >= 736:  # taking in account for size of spaceship
-            enemyX_change[i] = -3
+            enemyX_change[i] = -5
             enemyY[i] += enemyY_change[i]
 
         collision = isCollision(enemyX[i], enemyY[i], bulletX, bulletY)
         if collision:
+            # collision_sound = mixer.sound('')  # add .wav file
+            # collision_sound.play()
             bulletY = 480
             bulletX_change = 'ready'
-            score_value += 1
+            score_value += 1  # make sure score value is increasing by 1
             enemyX[i] = random.randint(0, 735)  # when hit the enemy wil restart at random pos
             enemyY[i] = random.randint(50, 150)
 
@@ -146,4 +171,5 @@ while running:
         bulletY -= bulletY_change
 
     player(playerX, playerY)  # notice how this icon function is being called after the screen background
+    show_score(textX,textY)  # call score function
     pygame.display.update()  # this will make sure the screen is always updating
